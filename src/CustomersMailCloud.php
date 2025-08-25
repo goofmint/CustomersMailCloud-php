@@ -55,4 +55,15 @@ class CustomersMailCloud
     {
         return new TransactionEmail($this);
     }
+
+    /**
+     * Get deliveries with optional parameters
+     *
+     * @param array $params Optional parameters for filtering deliveries
+     * @return array Array of Delivery instances
+     */
+    public function deliveries(array $params = []): array
+    {
+        return Delivery::list($this, $params);
+    }
 }
