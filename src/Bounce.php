@@ -10,26 +10,24 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 
 /**
- * Delivery class for handling delivery status operations
+ * Bounce class for handling bounce operations
  */
-class Delivery
+class Bounce
 {
     public string $created;
-    public string $returnPath;
+    public string $status;
     public string $from;
     public string $to;
     public string $messageId;
-    public string $reason;
-    public string $senderIp;
-    public string $sourceIp;
-    public string $status;
+    public string $returnPath;
     public string $subject;
     public string $apiData;
+    public string $reason;
 
     /**
-     * Delivery constructor.
+     * Bounce constructor.
      *
-     * @param array $data Delivery data from API response
+     * @param array $data Bounce data from API response
      */
     public function __construct(array $data = [])
     {
@@ -49,8 +47,8 @@ class Delivery
             case 'created':
                 $this->created = $value;
                 break;
-            case 'returnpath':
-                $this->returnPath = $value;
+            case 'status':
+                $this->status = $value;
                 break;
             case 'from':
                 $this->from = $value;
@@ -61,17 +59,8 @@ class Delivery
             case 'messageid':
                 $this->messageId = $value;
                 break;
-            case 'reason':
-                $this->reason = $value;
-                break;
-            case 'senderip':
-                $this->senderIp = $value;
-                break;
-            case 'sourceip':
-                $this->sourceIp = $value;
-                break;
-            case 'status':
-                $this->status = $value;
+            case 'returnpath':
+                $this->returnPath = $value;
                 break;
             case 'subject':
                 $this->subject = $value;
@@ -79,17 +68,20 @@ class Delivery
             case 'apidata':
                 $this->apiData = $value;
                 break;
+            case 'reason':
+                $this->reason = $value;
+                break;
             default:
-                throw new \Exception('Invalid property: ' . $key . ' in Delivery');
+                throw new \Exception('Invalid property: ' . $key . ' in Bounce');
         }
     }
 
     /**
-     * Get delivery list with optional filters
+     * Get bounce list with optional filters
      *
      * @param CustomersMailCloud $client The client instance
      * @param array $params Optional parameters for filtering
-     * @return array Array of Delivery instances
+     * @return array Array of Bounce instances
      * @throws CustomersMailCloudError If API returns errors
      * @throws \Exception For other errors (network, etc.)
      */
@@ -99,28 +91,19 @@ class Delivery
         if (!isset($params['server_composition'])) {
             throw new \Exception('server_composition parameter is required');
         }
-        if (!isset($params['date'])) {
-            throw new \Exception('date parameter is required');
-        }
-
-        // Validate date format
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $params['date'])) {
-            throw new \Exception('date must be in yyyy-mm-dd format');
-        }
 
         // Build endpoint URL
-        $url = sprintf('https://api.smtps.jp/transaction/v2/deliveries/list.json');
+        $url = sprintf('https://api.smtps.jp/transaction/v2/bounces/list.json');
 
         // Prepare data
         $data = [
             'api_user' => $client->getApiUser(),
             'api_key' => $client->getApiKey(),
             'server_composition' => $params['server_composition'],
-            'date' => $params['date'],
         ];
 
         // Add optional parameters
-        $optionalParams = ['from', 'to', 'api_data', 'status', 'hour', 'minute', 'p', 'r', 'search_option'];
+        $optionalParams = ['from', 'to', 'api_data', 'status', 'start_date', 'end_date', 'date', 'hour', 'minute', 'p', 'r', 'search_option'];
         foreach ($optionalParams as $param) {
             if (isset($params[$param])) {
                 $data[$param] = $params[$param];
@@ -145,15 +128,15 @@ class Delivery
                 throw new CustomersMailCloudError($responseData['errors'], $responseData);
             }
 
-            // Convert response to Delivery instances
-            $deliveries = [];
-            if (isset($responseData['deliveries']) && is_array($responseData['deliveries'])) {
-                foreach ($responseData['deliveries'] as $deliveryData) {
-                    $deliveries[] = new self($deliveryData);
+            // Convert response to Bounce instances
+            $bounces = [];
+            if (isset($responseData['bounces']) && is_array($responseData['bounces'])) {
+                foreach ($responseData['bounces'] as $bounceData) {
+                    $bounces[] = new self($bounceData);
                 }
             }
             
-            return $deliveries;
+            return $bounces;
 
         } catch (ClientException $e) {
             // Handle 4xx client errors
@@ -174,7 +157,7 @@ class Delivery
 
         } catch (GuzzleException $e) {
             // Handle other Guzzle exceptions (network errors, etc.)
-            throw new \Exception('Failed to get deliveries: ' . $e->getMessage());
+            throw new \Exception('Failed to get bounces: ' . $e->getMessage());
         }
     }
 }

@@ -66,4 +66,15 @@ class CustomersMailCloud
     {
         return Delivery::list($this, $params);
     }
+
+    /**
+     * Get bounces with optional parameters
+     *
+     * @param array $params Optional parameters for filtering bounces
+     * @return array Array of Bounce instances
+     */
+    public function bounces(array $params = []): array
+    {
+        return Bounce::list($this, $params);
+    }
 }

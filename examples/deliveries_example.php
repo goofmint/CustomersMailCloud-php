@@ -89,36 +89,10 @@ try {
     
     echo "\n" . str_repeat("-", 50) . "\n\n";
     
-    // Example 4: Using convenience methods
-    echo "4. Using convenience methods:\n";
+    // Example 4: With search options for exact match
+    echo "4. Using exact match search:\n";
     
-    $delivery = new CustomersMailCloud\Delivery();
-    
-    // Get by email
-    $emailDeliveries = $delivery->getByEmail(
-        $client,
-        'test@example.com',
-        'default',
-        date('Y-m-d', strtotime('-1 day')),
-        'to'
-    );
-    echo "Found " . count($emailDeliveries) . " deliveries to test@example.com\n";
-    
-    // Get by status
-    $statusDeliveries = $delivery->getByStatus(
-        $client,
-        'succeeded',
-        'default',
-        date('Y-m-d', strtotime('-1 day'))
-    );
-    echo "Found " . count($statusDeliveries) . " successful deliveries\n";
-    
-    echo "\n" . str_repeat("-", 50) . "\n\n";
-    
-    // Example 5: With search options for exact match
-    echo "5. Using exact match search:\n";
-    
-    $exactMatchDeliveries = CustomersMailCloud\Delivery::list($client, [
+    $exactMatchDeliveries = $client->deliveries([
         'server_composition' => 'default',
         'date' => date('Y-m-d', strtotime('-1 day')),
         'from' => 'info@dxlabo.com',

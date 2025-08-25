@@ -50,7 +50,7 @@ class DeliveryTest extends TestCase
         // Test missing server_composition
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('server_composition parameter is required');
-        Delivery::list($this->client, ['date' => '2023-01-01']);
+        $this->client->deliveries(['date' => '2023-01-01']);
     }
 
     public function testDateValidation(): void
@@ -58,7 +58,7 @@ class DeliveryTest extends TestCase
         // Test missing date
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('date parameter is required');
-        Delivery::list($this->client, ['server_composition' => 'test']);
+        $this->client->deliveries(['server_composition' => 'test']);
     }
 
     public function testInvalidDateFormat(): void
@@ -66,7 +66,7 @@ class DeliveryTest extends TestCase
         // Test invalid date format
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('date must be in yyyy-mm-dd format');
-        Delivery::list($this->client, [
+        $this->client->deliveries([
             'server_composition' => 'sandbox',
             'date' => '01-01-2023'
         ]);
@@ -76,7 +76,7 @@ class DeliveryTest extends TestCase
     {
         // Test future date to see if API returns error
         try {
-            $deliveries = Delivery::list($this->client, [
+            $deliveries = $this->client->deliveries([
                 'server_composition' => 'sandbox',
                 'date' => date('Y-m-d', strtotime('+1 day'))
             ]);
@@ -112,7 +112,7 @@ class DeliveryTest extends TestCase
     {
         // Test invalid server composition to see if API returns error
         try {
-            $deliveries = Delivery::list($this->client, [
+            $deliveries = $this->client->deliveries([
                 'server_composition' => 'invalid_server_composition',
                 'date' => date('Y-m-d', strtotime('-1 day'))
             ]);
@@ -211,7 +211,7 @@ class DeliveryTest extends TestCase
     public function testDeliveriesWithSearchOptions(): void
     {
         try {
-            $results = Delivery::list($this->client, [
+            $results = $this->client->deliveries([
                 'server_composition' => 'sandbox',
                 'date' => $this->testConfig['date'],
                 'from' => 'info@dxlabo.com',
@@ -230,65 +230,5 @@ class DeliveryTest extends TestCase
         } catch (\Exception $e) {
             $this->markTestSkipped('Search options test failed: ' . $e->getMessage());
         }
-    }
-
-    public function testConvenienceMethods(): void
-    {
-        $delivery = new Delivery();
-
-        // Test getByEmail method
-        try {
-            $results = $delivery->getByEmail(
-                $this->client,
-                'test@example.com',
-                $this->testConfig['server_composition'],
-                $this->testConfig['date']
-            );
-            $this->assertIsArray($results);
-        } catch (\Exception $e) {
-            $this->markTestSkipped('getByEmail test failed: ' . $e->getMessage());
-        }
-
-        // Test getByStatus method
-        try {
-            $results = $delivery->getByStatus(
-                $this->client,
-                'succeeded',
-                $this->testConfig['server_composition'],
-                $this->testConfig['date']
-            );
-            $this->assertIsArray($results);
-        } catch (\Exception $e) {
-            $this->markTestSkipped('getByStatus test failed: ' . $e->getMessage());
-        }
-
-        // Test getByMessageId method
-        try {
-            $results = $delivery->getByMessageId(
-                $this->client,
-                'test-message-id',
-                $this->testConfig['server_composition'],
-                $this->testConfig['date']
-            );
-            $this->assertIsArray($results);
-        } catch (\Exception $e) {
-            $this->markTestSkipped('getByMessageId test failed: ' . $e->getMessage());
-        }
-    }
-
-    public function testInvalidEmailType(): void
-    {
-        $delivery = new Delivery();
-
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('type must be either "from" or "to"');
-        
-        $delivery->getByEmail(
-            $this->client,
-            'test@example.com',
-            $this->testConfig['server_composition'],
-            $this->testConfig['date'],
-            'invalid_type'
-        );
     }
 }
