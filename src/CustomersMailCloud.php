@@ -77,4 +77,15 @@ class CustomersMailCloud
     {
         return Bounce::list($this, $params);
     }
+
+    /**
+     * Get statistics with required parameters
+     *
+     * @param array $params Parameters for filtering statistics (year and month required)
+     * @return array Array of Statistic instances
+     */
+    public function statistics(array $params = []): array
+    {
+        return Statistic::list($this, $params);
+    }
 }

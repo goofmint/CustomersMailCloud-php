@@ -49,6 +49,8 @@ try {
 - **Attachments**: Support for file attachments (up to 10 files)
 - **Error Handling**: Comprehensive error handling with detailed error information
 - **Sub-domain Support**: Configurable sub-domain for different environments
+- **Delivery & Bounce Tracking**: Retrieve delivery status and bounce information
+- **Statistics**: Get email sending statistics and analytics
 
 ## Configuration
 
@@ -124,6 +126,78 @@ $email->attachments = [
 $success = $email->send();
 ```
 
+### Statistics API
+
+```php
+// Get monthly statistics
+$statistics = $client->statistics([
+    'year' => 2024,
+    'month' => 1,
+    'server_composition' => 'your-server-composition'
+]);
+
+foreach ($statistics as $stat) {
+    echo "Date: " . $stat->date . "\n";
+    echo "Queued: " . $stat->queued . "\n";
+    echo "Succeeded: " . $stat->succeeded . "\n";
+    echo "Failed: " . $stat->failed . "\n";
+    echo "Blocked: " . $stat->blocked . "\n";
+    echo "Valid: " . $stat->valid . "\n";
+}
+
+// Get total statistics for a month
+$totalStats = $client->statistics([
+    'year' => 2024,
+    'month' => 1,
+    'server_composition' => 'your-server-composition',
+    'total' => true
+]);
+```
+
+### Delivery Tracking API
+
+```php
+// Get delivery status for a specific date
+$deliveries = $client->deliveries([
+    'server_composition' => 'your-server-composition',
+    'date' => '2024-01-15'
+]);
+
+foreach ($deliveries as $delivery) {
+    echo "Subject: " . $delivery->subject . "\n";
+    echo "Status: " . $delivery->status . "\n";
+    echo "From: " . $delivery->from . "\n";
+    echo "To: " . $delivery->to . "\n";
+}
+
+// With filters
+$filteredDeliveries = $client->deliveries([
+    'server_composition' => 'your-server-composition',
+    'date' => '2024-01-15',
+    'status' => 'succeeded',
+    'from' => 'sender@example.com'
+]);
+```
+
+### Bounce Information API
+
+```php
+// Get bounce information
+$bounces = $client->bounces([
+    'server_composition' => 'your-server-composition',
+    'start_date' => '2024-01-01',
+    'end_date' => '2024-01-31'
+]);
+
+foreach ($bounces as $bounce) {
+    echo "Subject: " . $bounce->subject . "\n";
+    echo "Status: " . $bounce->status . "\n";
+    echo "From: " . $bounce->from . "\n";
+    echo "To: " . $bounce->to . "\n";
+    echo "Reason: " . $bounce->reason . "\n";
+}
+```
+
 ## Error Handling
 
 The SDK provides comprehensive error handling:
@@ -166,6 +240,12 @@ vendor/bin/phpunit --group attachments
 
 # Error handling tests
 vendor/bin/phpunit --group error-handling
+
+# Statistics tests
+vendor/bin/phpunit --group statistics
+
+# Delivery tests
+vendor/bin/phpunit --group deliveries
 ```
 
 ## Examples
