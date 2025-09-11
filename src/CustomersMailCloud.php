@@ -88,4 +88,15 @@ class CustomersMailCloud
     {
         return Statistic::list($this, $params);
     }
+
+    /**
+     * Get audit logs with required parameters
+     *
+     * @param array $params Parameters for filtering audit logs (type required)
+     * @return array Array of Auditlog instances
+     */
+    public function auditlogs(array $params = []): array
+    {
+        return Auditlog::list($this, $params);
+    }
 }

@@ -51,6 +51,7 @@ try {
 - **Sub-domain Support**: Configurable sub-domain for different environments
 - **Delivery & Bounce Tracking**: Retrieve delivery status and bounce information
 - **Statistics**: Get email sending statistics and analytics
+- **Audit Logs**: Access login logs and operation logs for security monitoring
 
 ## Configuration
 
@@ -198,6 +199,55 @@ foreach ($bounces as $bounce) {
 }
 ```
 
+### Audit Logs API
+
+```php
+// Get login logs
+$loginLogs = $client->auditlogs([
+    'type' => 'login',
+    'start_date' => '2024-01-01',
+    'end_date' => '2024-01-31'
+]);
+
+foreach ($loginLogs as $log) {
+    echo "Created: " . $log->created . "\n";
+    echo "Account: " . $log->account . "\n";
+    echo "IP Address: " . $log->ipaddress . "\n";
+    echo "Result: " . $log->result . "\n";
+    echo "Reason: " . $log->reason . "\n";
+}
+
+// Get operation logs with filters
+$operationLogs = $client->auditlogs([
+    'type' => 'operation',
+    'account' => 'admin',
+    'start_date' => '2024-01-01',
+    'end_date' => '2024-01-31',
+    'p' => 0,  // Page number
+    'r' => 10  // Records per page
+]);
+
+foreach ($operationLogs as $log) {
+    echo "Created: " . $log->created . "\n";
+    echo "Account: " . $log->account . "\n";
+    echo "Name: " . $log->name . "\n";
+    echo "Function: " . $log->function . "\n";
+    echo "Operation: " . $log->operation . "\n";
+}
+
+// Download audit logs as ZIP file
+use CustomersMailCloud\Auditlog;
+
+$zipContent = Auditlog::download($client, [
+    'type' => 'login',
+    'start_date' => '2024-01-01',
+    'end_date' => '2024-01-31'
+]);
+
+// Save ZIP file
+file_put_contents('auditlogs-' . date('YmdHis') . '.zip', $zipContent);
+```
+
 ## Error Handling
 
 The SDK provides comprehensive error handling:
@@ -246,6 +296,9 @@ vendor/bin/phpunit --group statistics
 
 # Delivery tests
 vendor/bin/phpunit --group deliveries
+
+# Audit logs tests
+vendor/bin/phpunit --group auditlogs
 ```
 
 ## Examples
