@@ -99,4 +99,26 @@ class CustomersMailCloud
     {
         return Auditlog::list($this, $params);
     }
+
+    /**
+     * Download unsubscribe list as ZIP file
+     *
+     * @param array $params Parameters for filtering unsubscribes (server_composition required)
+     * @return string Raw ZIP file content
+     */
+    public function unsubscribes_download(array $params = []): string
+    {
+        return Unsubscribe::download($this, $params);
+    }
+
+    /**
+     * Cancel unsubscribe status (resubscribe)
+     *
+     * @param array $params Parameters for canceling unsubscribe (server_composition and email required)
+     * @return array Response from API
+     */
+    public function unsubscribes_cancel(array $params = []): array
+    {
+        return Unsubscribe::cancel($this, $params);
+    }
 }

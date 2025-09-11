@@ -52,6 +52,7 @@ try {
 - **Delivery & Bounce Tracking**: Retrieve delivery status and bounce information
 - **Statistics**: Get email sending statistics and analytics
 - **Audit Logs**: Access login logs and operation logs for security monitoring
+- **Unsubscribe Management**: Download unsubscribe lists and cancel unsubscribe status
 
 ## Configuration
 
@@ -248,6 +249,70 @@ $zipContent = Auditlog::download($client, [
 file_put_contents('auditlogs-' . date('YmdHis') . '.zip', $zipContent);
 ```
 
+### Unsubscribe Management API
+
+```php
+// Download unsubscribe list as ZIP file
+$zipContent = $client->unsubscribes_download([
+    'server_composition' => 'your-server-composition',
+    'start_date' => '2024-01-01',
+    'end_date' => '2024-01-31'
+]);
+
+// Save ZIP file
+file_put_contents('unsubscribes-' . date('YmdHis') . '.zip', $zipContent);
+
+// Download with filters
+$filteredZip = $client->unsubscribes_download([
+    'server_composition' => 'your-server-composition',
+    'email' => 'user@example.com',  // Partial match
+    'filter_name' => 'Newsletter List',
+    'start_date' => '2024-01-01',
+    'end_date' => '2024-01-31'
+]);
+
+// Cancel unsubscribe status (resubscribe)
+$response = $client->unsubscribes_cancel([
+    'server_composition' => 'your-server-composition',
+    'email' => 'user@example.com'
+]);
+
+if ($response['message'] === 'success') {
+    echo "Unsubscribe status canceled successfully\n";
+}
+
+// Cancel with filter name
+$response = $client->unsubscribes_cancel([
+    'server_composition' => 'your-server-composition',
+    'email' => 'user@example.com',
+    'filter_name' => 'Newsletter List'
+]);
+
+// Cancel multiple email addresses
+$response = $client->unsubscribes_cancel([
+    'server_composition' => 'your-server-composition',
+    'email' => [
+        'user1@example.com',
+        'user2@example.com',
+        'user3@example.com'
+    ]
+]);
+
+// Using static methods directly
+use CustomersMailCloud\Unsubscribe;
+
+$zipContent = Unsubscribe::download($client, [
+    'server_composition' => 'your-server-composition',
+    'start_date' => '2024-01-01',
+    'end_date' => '2024-01-31'
+]);
+
+$response = Unsubscribe::cancel($client, [
+    'server_composition' => 'your-server-composition',
+    'email' => 'user@example.com'
+]);
+```
+
 ## Error Handling
 
 The SDK provides comprehensive error handling:
@@ -299,6 +364,9 @@ vendor/bin/phpunit --group deliveries
 
 # Audit logs tests
 vendor/bin/phpunit --group auditlogs
+
+# Unsubscribe tests
+vendor/bin/phpunit --group unsubscribes
 ```
 
 ## Examples
